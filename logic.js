@@ -1,9 +1,8 @@
-
-/**************************************************
+/******************
 
     Get mock data
 
-**************************************************/
+******************/
 // `data` is what we get from the backend.
 // `dataFiltered` is what we display on the table.
 const data = [
@@ -33,24 +32,22 @@ const data = [
 let dataFiltered = data.slice();
 
 
-/**************************************************
+/******************
  
   Update the table
  
-**************************************************/
+******************/
 let tableBody = document.getElementById('js-content');
 
 const displayTable = (data) => {
     tableBody.innerHTML = '';
 
-    data.forEach((data, index) => {
+    data.forEach((data) => {
         let row = tableBody.insertRow();
-
         // Display name
-        let cell_name = row.insertCell(0);
-        let node_name = document.createTextNode(data.name);
-
-        cell_name.appendChild(node_name);
+        handleSetElementInTable(0, row, data.name);
+        handleSetElementInTable(1, row, data.power);
+        handleSetElementInTable(2, row, data.rank);
 
         // TODO #1:
         // 
@@ -71,20 +68,45 @@ const displayTable = (data) => {
     });
 };
 
+function handleSetElementInTable(position, row, element) {
+    let cell_name = row.insertCell(position);
+    let node_name = document.createTextNode(element);
+
+    cell_name.appendChild(node_name);
+}
+
 // Display the table for the first time
 displayTable(dataFiltered);
 
 
-/**************************************************
+/******************
  
   Search data by description
  
-**************************************************/
+******************/
 let myInput = document.getElementById('js-search-input');
 
-const searchInFields = () => {
+function debounce(func, timeout = 300) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => { func.apply(this, args); }, timeout);
+    };
+}
+
+myInput.addEventListener('keyup', debounce(() => {
     // Get the query string
     const query = myInput.value.trim();
+    if (query != '') {
+
+        dataFiltered = data.filter(el =>
+            el.name.toLowerCase().includes(query.toLowerCase()) ||
+            el.power.toLowerCase().includes(query.toLowerCase()) ||
+            el.rank.toLowerCase().includes(query.toLowerCase()));
+    } else {
+        dataFiltered = data.slice();
+    }
+
 
     // TODO #2:
     // 
@@ -104,4 +126,4 @@ const searchInFields = () => {
 
     // Update the table
     displayTable(dataFiltered);
-};
+}));
